@@ -7,7 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ['password']
 
 
-class RestaurantSerilaizer(serializers.ModelSerializer):
+class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restaurant
         fields = '__all__'
@@ -20,7 +20,6 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
 
     class Meta:
         model = Customer
