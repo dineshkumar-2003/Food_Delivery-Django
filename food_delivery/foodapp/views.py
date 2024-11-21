@@ -1,11 +1,12 @@
-from .models import *
-from .serializers import * 
+from foodapp.models import *
+from foodapp.serializers import * 
 from rest_framework import status
 from rest_framework.views import APIView
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from datetime import datetime, timedelta
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 class UserListCreate(APIView):
     def get(self, request):
@@ -97,10 +98,20 @@ class RestaurantDetail(APIView):
 
 class MenuItemListCreate(APIView):
     def get(self, request):
-        menu_items = MenuItem.objects.all()
+        restaurant_id=request.query_params.get('restaurant',None)
+        if restaurant_id:
+            try:
+                menu_items=MenuItem.objects.filter(restaurant=restaurant_id)
+                if not menu_items.exists():
+                    return Response({"detail": "No menu items found for this restaurant."}, status=status.HTTP_404_NOT_FOUND)
+            except Restaurant.DoesNotExist:
+                return Response({"detail": "Restaurant not found."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # If no restaurant_id is provided, return all menu items
+            menu_items = MenuItem.objects.all()
         serializer = MenuItemSerializer(menu_items, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request):
         serializer = MenuItemSerializer(data=request.data)
         if serializer.is_valid():
@@ -153,16 +164,19 @@ class CustomerListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomerDetail(APIView):
-    def get_object(self, pk):
+    def get_object(self, pk,user):
         try:
-            return Customer.objects.get(pk=pk)
+            customer= Customer.objects.get(pk=pk)
+            if customer.user !=user:
+                raise PermissionError("You don't habe permission to access this resource")
+            return customer
         except Customer.DoesNotExist:
             return None
 
     def get(self, request, pk):
-        customer = self.get_object(pk)
+        customer = self.get_object(pk,request.user)
         if customer is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"Customer not found"},status=status.HTTP_404_NOT_FOUND)
         serializer = CustomerSerializer(customer)
         return Response(serializer.data)
 

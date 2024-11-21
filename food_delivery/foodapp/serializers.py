@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import *
+from foodapp.models import *
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,7 +23,8 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = '__all__'
+        fields = ['phone_number','current_location']
+        read_only_fields=['name']
 
 
 class DeliveryPersonSerializer(serializers.ModelSerializer):
@@ -35,7 +36,8 @@ class DeliveryPersonSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields ='__all__'
+        fields =['menu_item','quantity']
+        read_only_fields=['order']      
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -53,3 +55,4 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+        
