@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from foodapp.choices import StatusChoices
 
 class User(AbstractUser):
 
@@ -17,6 +18,9 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=20)
     address = models.TextField()
     contact_number = models.CharField( max_length=11)
+    opening_time=models.TimeField(auto_now=True)
+    closing_time=models.TimeField(auto_now=True)
+    is_active=models.BooleanField(default=True)
     
     def __str__(self):
         return self.name
@@ -34,11 +38,12 @@ class MenuItem(models.Model):
     
 
 class Customer(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    name = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length = 11)
     current_location = models.CharField(max_length=15)
 
     def __str__(self):
-        return self.user.username
+        return self.name
     
 
 class DeliveryPerson(models.Model):
@@ -53,16 +58,10 @@ class DeliveryPerson(models.Model):
 
 class Order(models.Model):
 
-    STATUS_CHOICES=[
-        ('PENDING','Pending'),
-        ('IN_PROGRESS','In progress'),
-        ('DELIVERED','Delivered'),
-        ('CANCELLED','Cancelled'),
-    ]
-    customer = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     restaurant=models.ForeignKey(Restaurant,on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    status= models.CharField(max_length=20,choices=STATUS_CHOICES,default='PENDING')
+    status= models.CharField(max_length=20,choices=StatusChoices.choices,default=StatusChoices.PENDING)
 
 
 class OrderItem(models.Model):
@@ -85,7 +84,7 @@ class Delivery(models.Model):
 
 
 class Payment(models.Model):
-
+ 
     order = models.OneToOneField(Order,on_delete = models.CASCADE)
     amount = models.DecimalField(max_digits=6,decimal_places=2)
     payment_method = models.CharField(max_length=10)
