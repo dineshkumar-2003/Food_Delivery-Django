@@ -3,9 +3,11 @@ from foodapp.serializers import *
 from rest_framework import status
 from rest_framework.views import APIView
 from geopy.geocoders import Nominatim
-from geopy.distance import geodesic
+from geopy.distance import geodesic 
 from datetime import datetime, timedelta
 from rest_framework.response import Response
+from django.utils.timezone import now
+from foodapp.choices import StatusChoices
 from rest_framework.permissions import IsAuthenticated
 
 class UserListCreate(APIView):
@@ -54,7 +56,13 @@ class UserDetail(APIView):
 
 class RestaurantListCreate(APIView):
     def get(self, request):
-        restaurants = Restaurant.objects.all()
+        current_time= now().time()
+        restaurants = Restaurant.objects.filter(
+            is_active =True,
+            opening_time__lte=current_time,
+            closing_time__gte=current_time
+
+        )
         serializer = RestaurantSerializer(restaurants, many=True)
         return Response(serializer.data)
 
@@ -343,16 +351,16 @@ class OrderActionsView(APIView):
             return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
         if action == 'mark_as_delivered':
-            if order.status == 'DELIVERED':
+            if order.status == StatusChoices.DELIVERED:
                 return Response({"message": "Order already delivered"}, status=status.HTTP_400_BAD_REQUEST)
-            order.status = 'DELIVERED'
+            order.status = StatusChoices.DELIVERED
             order.save()
             return Response({"message": "Order marked as delivered"}, status=status.HTTP_200_OK)
 
         elif action == 'cancel_order':
-            if order.status in ['DELIVERED', 'CANCELLED']:
+            if order.status in [StatusChoices.DELIVERED, StatusChoices.CANCELLED]:
                 return Response({"error": "Order cannot be canceled"}, status=status.HTTP_400_BAD_REQUEST)
-            order.status = 'CANCELLED'
+            order.status = StatusChoices.CANCELLED
             order.save()
             return Response({"message": "Order canceled successfully"}, status=status.HTTP_200_OK)
 
