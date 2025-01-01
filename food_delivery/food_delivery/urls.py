@@ -20,5 +20,6 @@ from foodapp.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include("foodapp.urls"))
+    path('',include("foodapp.urls")),
+    path('auth/',include("authentication.urls")),
 ]

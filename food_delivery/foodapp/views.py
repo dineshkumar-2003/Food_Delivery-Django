@@ -8,9 +8,11 @@ from datetime import datetime, timedelta
 from rest_framework.response import Response
 from django.utils.timezone import now
 from foodapp.choices import StatusChoices
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class UserListCreate(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -24,6 +26,8 @@ class UserListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserDetail(APIView):
+    permission_classes = [AllowAny]
+
     def get_object(self,pk):
         try:
             return User.objects.get(pk=pk)
@@ -55,6 +59,8 @@ class UserDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class RestaurantListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         current_time= now().time()
         restaurants = Restaurant.objects.filter(
@@ -74,6 +80,8 @@ class RestaurantListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RestaurantDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Restaurant.objects.get(pk=pk)
@@ -105,6 +113,8 @@ class RestaurantDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class MenuItemListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         restaurant_id=request.query_params.get('restaurant',None)
         if restaurant_id:
@@ -128,6 +138,8 @@ class MenuItemListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MenuItemDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return MenuItem.objects.get(pk=pk)
@@ -159,6 +171,8 @@ class MenuItemDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class CustomerListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         customers = Customer.objects.all()
         serializer = CustomerSerializer(customers, many=True)
@@ -172,6 +186,8 @@ class CustomerListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomerDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk,user):
         try:
             customer= Customer.objects.get(pk=pk)
@@ -206,6 +222,8 @@ class CustomerDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class DeliveryPersonListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         delivery_persons = DeliveryPerson.objects.all()
         serializer = DeliveryPersonSerializer(delivery_persons, many=True)
@@ -219,6 +237,8 @@ class DeliveryPersonListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeliveryPersonDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return DeliveryPerson.objects.get(pk=pk)
@@ -250,6 +270,8 @@ class DeliveryPersonDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class OrderListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         orders = Order.objects.all()
         serializer = OrderSerializer(orders, many=True)
@@ -263,6 +285,8 @@ class OrderListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class OrderDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Order.objects.get(pk=pk)
@@ -295,6 +319,8 @@ class OrderDetail(APIView):
 
 
 class OrderActionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
     """
     Handles custom actions for specific orders: calculating delivery time, marking as delivered, canceling.
     """
@@ -369,6 +395,8 @@ class OrderActionsView(APIView):
 
 
 class OrderFilterView(APIView):
+    permission_classes = [IsAuthenticated]
+
     """
     Filter orders by status. Accessible at: /orders/filter_by_status/?status=PENDING
     """
@@ -387,6 +415,8 @@ class OrderFilterView(APIView):
 
 
 class DeliveryListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         deliveries = Delivery.objects.all()
         serializer = DeliverySerializer(deliveries, many=True)
@@ -400,6 +430,8 @@ class DeliveryListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeliveryDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Delivery.objects.get(pk=pk)
@@ -431,6 +463,8 @@ class DeliveryDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PaymentListCreate(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         payments = Payment.objects.all()
         serializer = PaymentSerializer(payments, many=True)
@@ -444,6 +478,8 @@ class PaymentListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return Payment.objects.get(pk=pk)
