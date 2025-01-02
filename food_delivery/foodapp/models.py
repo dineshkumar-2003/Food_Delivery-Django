@@ -80,7 +80,7 @@ class Delivery(models.Model):
     actual_delivery_time = models.IntegerField()
 
     def __str__(self):
-        return self.actual_delivery_time
+        return str(self.actual_delivery_time)
 
 
 class Payment(models.Model):
